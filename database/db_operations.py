@@ -57,9 +57,20 @@ async def insert_token( token_id, token_name, chain_id, token_address, token_sym
     session.commit()
 
 async def insert_wallet(wallet_id, user_id, chain_id):
-    new_wallet = Wallet(wallet_id=wallet_id, user_id=user_id, chain_id=chain_id)
+    new_wallet = Wallet(wallet_address=wallet_id, user_id=user_id, chain_id=chain_id)
     session.add(new_wallet)
     session.commit()
+
+async def get_wallet_id_address(user_id):
+    wallets = session.query(Wallet.id).filter(Wallet.user_id == user_id).all()
+    wallet_addresses = session.query(Wallet.wallet_address).filter(Wallet.user_id == user_id).all()
+    wallet_ids = [wallet[0] for wallet in wallets]
+    wallets_ads = [wallet[0] for wallet in wallet_addresses]
+    return wallet_ids , wallets_ads
+
+async def wallet_address_getter(wallet_id):
+    get_wallet_ads = session.query(Wallet.wallet_address).filter(Wallet.id == wallet_id).first()
+    return get_wallet_ads
 
 async def checke_wallet_no(user_id):
     check_wallet =  session.query(func.count(Wallet.id)).filter_by(user_id=user_id).scalar()
@@ -102,8 +113,11 @@ async def delete_token( token_id):
     session.delete(token_to_delete)
     session.commit()
 
+
+    
+
 async def delete_wallet( wallet_id):
-    wallet_to_delete = session.query(Wallet).filter_by(wallet_id=wallet_id).first()
+    wallet_to_delete = session.query(Wallet).filter_by(id=wallet_id).first()
     session.delete(wallet_to_delete)
     session.commit()
 

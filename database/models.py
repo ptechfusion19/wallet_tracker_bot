@@ -33,7 +33,7 @@ class Token(Base):
 class Wallet(Base):
     __tablename__ = "wallet"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    wallet_id = Column(Integer, nullable=False)
+    wallet_address = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     chain_id = Column(Integer, ForeignKey("chain.id"), nullable=False)
     # tokens_id = Column(Integer, ForeignKey("tokens.id"), nullable=False)
