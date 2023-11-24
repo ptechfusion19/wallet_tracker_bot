@@ -1,22 +1,28 @@
 from aiogram.filters import CommandStart , Command
-from aiogram.types import Message
+from aiogram.types import Message 
 from aiogram import Bot, Dispatcher, Router, types
-from Messages.message import start_command_text , wallet_command_text_fun , add_wallet_text , no_of_bsc_text, no_of_eth_text, no_of_shi_text
+from Messages.message import  wallet_command_text_fun ,  address_add ,  msg_lang_setter
+from handlers.ca_action import msg_setter
 from handlers.keyborad import wallet_keyborad , adding_Wallet_keyborad , lang_types_btn
 from aiogram.types import CallbackQuery 
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter
 from handlers.chain_validator import is_valid_eth_address
-from handlers.ca_action import ButtonClass
-from handlers.keyborad import delete_confirmation
+from handlers.ca_action import ButtonClass , lang_setter
+from handlers.keyborad import delete_confirmation , wallet_detial_keyboard
 from database.db_operations import delete_wallet
+from Messages.langobj import setter_lang
+from handlers.cleaner import cleaning_wallet_detial
+from aiogram.enums.parse_mode import ParseMode
+import datetime
 from aiogram import F
 router = Router()
 
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    await msg_lang_setter()
     # await delete_wallet("0x2028018Ad987228dBa4D66261a5e608E48F438de")
     user_checker = await check_user(message.from_user.id)
     # await delete_chain(0)
@@ -27,10 +33,11 @@ async def command_start_handler(message: Message) -> None:
         await insert_chain(2,"SHI")
 
 
+
     if user_checker == False:
         await insert_user(message.from_user.id , message.from_user.username)
     
-    await message.answer(f"{(start_command_text)}!")
+    await message.answer(f"{(msg_setter.start_command_text)}!")
 
     
     
@@ -59,13 +66,14 @@ async def user_name_btn(callback_query: types.CallbackQuery):
 
 @router.callback_query(lambda callback_query: callback_query.data == "add_Wallet")
 async def user_add_Wallet(callback_query: types.CallbackQuery):
+    await msg_lang_setter()
     add_Wallet_key = await adding_Wallet_keyborad()
-    await callback_query.message.answer( add_wallet_text , reply_markup=add_Wallet_key)
+    await callback_query.message.answer( msg_setter.add_wallet_text , reply_markup=add_Wallet_key)
 
 @router.callback_query(lambda callback_query:callback_query.data == "BSC" )
 async def bsc_input(callback_query: types.CallbackQuery, state: FSMContext ):
     force_reply_bsc = types.ForceReply(input_field_placeholder="0x420F69...")
-    await callback_query.message.answer( text=no_of_bsc_text , reply_markup=force_reply_bsc)
+    await callback_query.message.answer( text=msg_setter.no_of_bsc_text , reply_markup=force_reply_bsc)
     await state.set_state("bsc_wallet_address")
 
 
@@ -73,17 +81,18 @@ async def bsc_input(callback_query: types.CallbackQuery, state: FSMContext ):
 async def bsc_wallet_address(message:Message , state:FSMContext)-> None:
     wallet_addres  = message.text
     walllet_command_text = await wallet_command_text_fun(message.from_user.id)
-    if is_valid_eth_address(wallet_addres):
+    wallet_detail = await is_valid_eth_address(wallet_addres)
+    if wallet_detail:
         no_tot_wallet = await checke_wallet_no(message.from_user.id)
         if no_tot_wallet < 4:
             await insert_wallet(wallet_addres , message.from_user.id , 0 )
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"✅ Address \n {wallet_addres} \n (bsc) has been successfully added.")
+            await message.answer(text=await address_add(wallet_addres ,"bsc"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"YOUR LIMIR OF ADDIND WALLET IS EXCEDED ")
+            await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
@@ -96,7 +105,7 @@ async def bsc_wallet_address(message:Message , state:FSMContext)-> None:
 @router.callback_query(lambda callback_query:callback_query.data == "ETH")
 async def eth_input(callback_query: types.CallbackQuery, state: FSMContext):
     force_reply_eth = types.ForceReply(input_field_placeholder="0x420F69...")
-    await callback_query.message.answer( text=no_of_eth_text , reply_markup=force_reply_eth)
+    await callback_query.message.answer( text=msg_setter.no_of_eth_text , reply_markup=force_reply_eth)
     await state.set_state("eth_wallet_address")
 
 
@@ -104,17 +113,18 @@ async def eth_input(callback_query: types.CallbackQuery, state: FSMContext):
 async def eth_wallet_address(message:Message , state:FSMContext)-> None:
     wallet_addres  = message.text
     walllet_command_text = await wallet_command_text_fun(message.from_user.id)
-    if is_valid_eth_address(wallet_addres):
+    wallet_detail = await is_valid_eth_address(wallet_addres)
+    if wallet_detail:
         no_tot_wallet = await checke_wallet_no(message.from_user.id)
         if no_tot_wallet < 4:
             await insert_wallet(wallet_addres , message.from_user.id , 1 )
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"✅ Address \n {wallet_addres} \n (eth) has been successfully added.")
+            await message.answer(text=await address_add(wallet_addres , "eth"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"YOUR LIMIR OF ADDIND WALLET IS EXCEDED ")
+            await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
@@ -129,7 +139,7 @@ async def eth_wallet_address(message:Message , state:FSMContext)-> None:
 @router.callback_query(lambda callback_query:callback_query.data == "SHI")
 async def shi_input(callback_query: types.CallbackQuery, state: FSMContext):
     force_reply_shi = types.ForceReply(input_field_placeholder="0x420F69...")
-    await callback_query.message.answer( text=no_of_shi_text , reply_markup=force_reply_shi)
+    await callback_query.message.answer( text=msg_setter.no_of_shi_text , reply_markup=force_reply_shi)
     await state.set_state("shi_wallet_address")
 
 
@@ -137,17 +147,19 @@ async def shi_input(callback_query: types.CallbackQuery, state: FSMContext):
 async def shi_wallet_address(message:Message , state:FSMContext)-> None:
     wallet_addres  = message.text
     walllet_command_text = await wallet_command_text_fun(message.from_user.id)
-    if is_valid_eth_address(wallet_addres):
+    wallet_detail = await is_valid_eth_address(wallet_addres)
+    if wallet_detail:
         no_tot_wallet = await checke_wallet_no(message.from_user.id)
         if no_tot_wallet < 4:
             await insert_wallet(wallet_addres , message.from_user.id , 2 )
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"✅ Address \n {wallet_addres} \n (shi) has been successfully added.")
+            # await message.answer(text=f"✅ Address \n {wallet_addres} \n (shi) has been successfully added.")
+            await message.answer(text=await address_add(wallet_addres , "shi"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
-            await message.answer(text=f"YOUR LIMIR OF ADDIND WALLET IS EXCEDED ")
+            await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
@@ -162,6 +174,21 @@ async def lang_setting(callback_query: types.CallbackQuery):
     walllet_command_text = await wallet_command_text_fun(callback_query.from_user.id)
     await callback_query.message.answer(text=walllet_command_text , reply_markup=lang_keyboard)
 
+@router.callback_query(lambda callback_query:callback_query.data == "Chinese_lang")
+async def chinees_lang(callback_query: types.CallbackQuery):
+    await setter_lang("chinese")
+    await msg_lang_setter()
+    wallet_keyboard_button = await wallet_keyborad(callback_query.from_user.username , callback_query.from_user.id)
+    walllet_command_text = await wallet_command_text_fun(callback_query.from_user.id)
+    await callback_query.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
+
+@router.callback_query(lambda callback_query:callback_query.data == "English_lang")
+async def chinees_lang(callback_query: types.CallbackQuery):
+    await setter_lang("English")
+    await msg_lang_setter()
+    wallet_keyboard_button = await wallet_keyborad(callback_query.from_user.username , callback_query.from_user.id)
+    walllet_command_text = await wallet_command_text_fun(callback_query.from_user.id)
+    await callback_query.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
 
 # deleting the wallet
 
@@ -185,3 +212,40 @@ async def handle_wallet_delete(query:types.CallbackQuery,callback_data):
     walllet_command_text = await wallet_command_text_fun(query.from_user.id)
     wallet_keyboard_button = await wallet_keyborad(query.from_user.username , query.from_user.id)
     await query.message.answer(text=walllet_command_text ,reply_markup=wallet_keyboard_button)
+
+
+# wallet detail keyboard 
+@router.callback_query(ButtonClass.filter(F.btn_type=="walletDetail"))
+async def handle_wallet_button(query:types.CallbackQuery,callback_data):
+    
+    
+    wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id, callback_data.wallet_no)
+    wallet_detial_data = await is_valid_eth_address(callback_data.wallet_addres)
+    coin_symbols_holder_count =  await cleaning_wallet_detial(wallet_detial_data)
+    
+
+
+
+
+    print(coin_symbols_holder_count)
+
+    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['holdersCount'], reverse=True)
+
+    # Display the top 4 tokens
+    top_tokens = sorted_detail[:4]
+
+    # Construct the formatted message
+    formatted_message = "\n".join(
+        f"{token['symbol']}: {token['holdersCount'] } | 0.00 ETH"
+        for token in top_tokens
+    )
+
+    # formatted_message += (
+    #     "\n_________________________________\n"
+    #     "📈 Displaying Top 4 Tokens 📉\n"
+    #     f"💰 Total USD = ${sum(token['holdersCount'] * 117.19 for token in top_tokens):.2f} 💰\n"
+    #     f"💰 Total ETH = 0.00 ETH 💰")
+
+    
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    await query.message.answer(text=f"{formatted_message}  \n⌚ ---{current_time}--- ⌚ \n ℹ️ The bot only display tokens purchased  in the last 30 days. \n 🔊 Wallet Tracker - Advertise with us @wallet_taktak_bot" , reply_markup=wallet_detail)

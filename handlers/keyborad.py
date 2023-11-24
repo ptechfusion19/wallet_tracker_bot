@@ -2,6 +2,8 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from database.db_operations import checke_wallet_no , get_wallet_id_address
 from handlers.ca_action import ButtonClass
+from handlers.ca_action import lang_setter
+
 async def wallet_keyborad(user_name,user_id):
 
     
@@ -17,8 +19,8 @@ async def wallet_keyborad(user_name,user_id):
     if no_of_Wallets > 0:
         btn_list = []
         for i in range(no_of_Wallets):
-            btn_list.append(InlineKeyboardButton(text=f"wallet {wallet_ids[i]}", callback_data=f"wallet_{wallet_ids[i]}"))
-            btn_list.append(InlineKeyboardButton(text="❌", callback_data=ButtonClass(btn_type="delete",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i]).pack()))
+            btn_list.append(InlineKeyboardButton(text=f"wallet {i}", callback_data=ButtonClass(btn_type="walletDetail",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
+            btn_list.append(InlineKeyboardButton(text="❌", callback_data=ButtonClass(btn_type="delete",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
            
         
         # Assuming button1, button2, button3 are defined somewhere in your code
@@ -56,8 +58,8 @@ async def lang_types_btn(user_name):
 
     button1 = InlineKeyboardButton(text=f"{user_name} wallet" , callback_data="user_name")
     button2 = InlineKeyboardButton(text="Return" , callback_data="back_to_start")
-    button3 = InlineKeyboardButton(text="🇷🇺" , callback_data="Russian_lang")
-    button4 = InlineKeyboardButton(text="🇨🇳" , callback_data="Chinees_lang")
+    button3 = InlineKeyboardButton(text="🇺🇸" , callback_data="English_lang")
+    button4 = InlineKeyboardButton(text="🇨🇳" , callback_data="Chinese_lang")
 
     builder = InlineKeyboardBuilder([[button1 , button2 , button3 , button4]])
 
@@ -86,11 +88,11 @@ async def delete_confirmation(user_name,user_id,wallet_id):
         btn_list = []
         for i in range(no_of_Wallets):
             if wallet_id == wallet_ids[i]:
-                btn_list.append(InlineKeyboardButton(text=f"wallet {wallet_ids[i]}", callback_data=f"wallet_{wallet_ids[i]}"))
-                btn_list.append(InlineKeyboardButton(text="Confirm", callback_data=ButtonClass(btn_type="confirm",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i]).pack()))
+                btn_list.append(InlineKeyboardButton(text=f"wallet {i}", callback_data=ButtonClass(btn_type="walletDetail",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
+                btn_list.append(InlineKeyboardButton(text="Confirm", callback_data=ButtonClass(btn_type="confirm",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
             else:              
-                btn_list.append(InlineKeyboardButton(text=f"wallet {wallet_ids[i]}", callback_data=f"wallet_{wallet_ids[i]}"))
-                btn_list.append(InlineKeyboardButton(text="❌", callback_data=ButtonClass(btn_type="delete",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i]).pack()))
+                btn_list.append(InlineKeyboardButton(text=f"wallet {i}", callback_data=ButtonClass(btn_type="walletDetail",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
+                btn_list.append(InlineKeyboardButton(text="❌", callback_data=ButtonClass(btn_type="walletDetail",wallet_id=wallet_ids[i],wallet_addres=wallet_ads[i],wallet_no=str(i)).pack()))
            
         
         # Assuming button1, button2, button3 are defined somewhere in your code
@@ -105,3 +107,32 @@ async def delete_confirmation(user_name,user_id,wallet_id):
     keyboard = builder.as_markup()
 
     return keyboard
+
+
+# wallet detial keyboard 
+
+async def wallet_detial_keyboard(wallet_id,wallet_no):
+    
+    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}",callback_data="nothing")
+    show_token = InlineKeyboardButton(text="Show Missing and Hide Existing Tokens" , callback_data="show_token")
+    refresh = InlineKeyboardButton(text="Refreh", callback_data="refresh_wallet")
+    Mc = InlineKeyboardButton(text="MC" , callback_data="MC_wallet")
+    Gains = InlineKeyboardButton(text="Gains" , callback_data="Gains_wallet")
+    note_book  = InlineKeyboardButton(text="📃" , callback_data="note_Wallet")
+    chart_wallet  = InlineKeyboardButton(text="📈" , callback_data="chart_Wallet")
+    pin_wallet  = InlineKeyboardButton(text="📌" , callback_data="pin_Wallet")
+    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data="Manage_Wallet")
+    price_wallet  = InlineKeyboardButton(text="🚨 Price" , callback_data="price_Wallet")
+    inline_wallet = InlineKeyboardButton(text="Inline" , callback_data="inline_wallet")
+
+    builder3 = InlineKeyboardBuilder([[wallet_no_button , show_token,refresh,Mc , Gains , note_book,chart_wallet,pin_wallet,Manage_wallet,price_wallet,inline_wallet]])
+    builder3.adjust(1,1,3,3,3)
+    keyborad = builder3.as_markup()
+
+    return keyborad
+
+
+
+
+
+
