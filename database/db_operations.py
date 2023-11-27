@@ -72,6 +72,11 @@ async def wallet_address_getter(wallet_id):
     get_wallet_ads = session.query(Wallet.wallet_address).filter(Wallet.id == wallet_id).first()
     return get_wallet_ads
 
+async def wallet_chain_getter(wallet_id):
+    get_wallet_chain = session.query(Wallet.chain_id).filter(Wallet.id == wallet_id).first()
+    print(get_wallet_chain)
+    return get_wallet_chain
+
 async def checke_wallet_no(user_id):
     check_wallet =  session.query(func.count(Wallet.id)).filter_by(user_id=user_id).scalar()
     no_of_wallets = 0

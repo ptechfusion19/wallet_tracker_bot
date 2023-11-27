@@ -7,13 +7,13 @@ from handlers.keyborad import wallet_keyborad , adding_Wallet_keyborad , lang_ty
 from aiogram.types import CallbackQuery 
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
-from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter
-from handlers.chain_validator import is_valid_eth_address
+from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter , wallet_chain_getter
+from handlers.chain_validator import is_valid_eth_address ,is_valid_shi_address
 from handlers.ca_action import ButtonClass , lang_setter
 from handlers.keyborad import delete_confirmation , wallet_detial_keyboard
 from database.db_operations import delete_wallet
 from Messages.langobj import setter_lang
-from handlers.cleaner import cleaning_wallet_detial
+from handlers.cleaner import cleaning_wallet_detial_eth , cleaning_wallet_detial_shi
 from aiogram.enums.parse_mode import ParseMode
 import datetime
 from aiogram import F
@@ -147,7 +147,7 @@ async def shi_input(callback_query: types.CallbackQuery, state: FSMContext):
 async def shi_wallet_address(message:Message , state:FSMContext)-> None:
     wallet_addres  = message.text
     walllet_command_text = await wallet_command_text_fun(message.from_user.id)
-    wallet_detail = await is_valid_eth_address(wallet_addres)
+    wallet_detail = await is_valid_shi_address(wallet_addres)
     if wallet_detail:
         no_tot_wallet = await checke_wallet_no(message.from_user.id)
         if no_tot_wallet < 4:
@@ -217,26 +217,31 @@ async def handle_wallet_delete(query:types.CallbackQuery,callback_data):
 # wallet detail keyboard 
 @router.callback_query(ButtonClass.filter(F.btn_type=="walletDetail"))
 async def handle_wallet_button(query:types.CallbackQuery,callback_data):
-    
-    
-    wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id, callback_data.wallet_no)
-    wallet_detial_data = await is_valid_eth_address(callback_data.wallet_addres)
-    coin_symbols_holder_count =  await cleaning_wallet_detial(wallet_detial_data)
-    
 
-
-
+    chain_checker = await wallet_chain_getter(callback_data.wallet_id)
+    if chain_checker[0] == 0:
+        print("bsc")
+    elif chain_checker[0] == 1:
+        wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id, callback_data.wallet_no)
+        wallet_detial_data = await is_valid_eth_address(callback_data.wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_eth(wallet_detial_data)
+    elif chain_checker[0] == 2:
+        wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id , callback_data.wallet_no)
+        wallet_detial_data = await is_valid_shi_address(callback_data.wallet_addres)
+        print(wallet_detial_data)
+        coin_symbols_holder_count = await cleaning_wallet_detial_shi(wallet_detial_data)
+        print("shibarium")
 
     print(coin_symbols_holder_count)
 
-    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['holdersCount'], reverse=True)
+    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
 
     # Display the top 4 tokens
     top_tokens = sorted_detail[:4]
 
     # Construct the formatted message
     formatted_message = "\n".join(
-        f"{token['symbol']}: {token['holdersCount'] } | 0.00 ETH"
+        f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD"
         for token in top_tokens
     )
 
