@@ -111,9 +111,9 @@ async def delete_confirmation(user_name,user_id,wallet_id):
 
 # wallet detial keyboard 
 
-async def wallet_detial_keyboard(wallet_id,wallet_no):
+async def wallet_detial_keyboard(wallet_no,wallet_id,wallet_ads):
     
-    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}",callback_data="nothing")
+    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}",callback_data=ButtonClass(btn_type="wallet_addres" , wallet_id=wallet_id,wallet_addres=wallet_ads,wallet_no=wallet_no).pack())
     show_token = InlineKeyboardButton(text="Show Missing and Hide Existing Tokens" , callback_data="show_token")
     refresh = InlineKeyboardButton(text="Refreh", callback_data="refresh_wallet")
     Mc = InlineKeyboardButton(text="MC" , callback_data="MC_wallet")
@@ -131,6 +131,26 @@ async def wallet_detial_keyboard(wallet_id,wallet_no):
 
     return keyborad
 
+async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads):
+    
+    wallet_no_button = InlineKeyboardButton(text=f"{wallet_ads}",callback_data=ButtonClass(btn_type="walletDetail" , wallet_id=wallet_id,wallet_addres=wallet_ads,wallet_no=wallet_no).pack())
+    show_token = InlineKeyboardButton(text="Show Missing and Hide Existing Tokens" , callback_data="show_token")
+    refresh = InlineKeyboardButton(text="Refreh", callback_data="refresh_wallet")
+    Mc = InlineKeyboardButton(text="MC" , callback_data="MC_wallet")
+    Gains = InlineKeyboardButton(text="Gains" , callback_data="Gains_wallet")
+    note_book  = InlineKeyboardButton(text="📃" , callback_data="note_Wallet")
+    chart_wallet  = InlineKeyboardButton(text="📈" , callback_data="chart_Wallet")
+    pin_wallet  = InlineKeyboardButton(text="📌" , callback_data="pin_Wallet")
+    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data="Manage_Wallet")
+    price_wallet  = InlineKeyboardButton(text="🚨 Price" , callback_data="price_Wallet")
+    inline_wallet = InlineKeyboardButton(text="Inline" , callback_data="inline_wallet")
+
+    builder3 = InlineKeyboardBuilder([[wallet_no_button , show_token,refresh,Mc , Gains , note_book,chart_wallet,pin_wallet,Manage_wallet,price_wallet,inline_wallet]])
+    builder3.adjust(1,1,3,3,3)
+    keyborad = builder3.as_markup()
+
+    return keyborad
+    
 
 
 

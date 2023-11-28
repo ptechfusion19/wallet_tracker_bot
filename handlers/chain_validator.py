@@ -44,23 +44,21 @@ async def is_valid_shi_address(address):
     if response.status_code == 200:
         # Parse the JSON response
         data = response.json()
-        print(f" ............................................{data}......................................")
+        
         token_info_list = data['items']
         result_list = []
 
         for token_info in token_info_list:
             token_data = token_info['token']
+          
             result_list.append({
                 'symbol': token_data['symbol'],
                 'address': token_data['address'],
-                'value': token_info['value']
+                'value': token_info['value'],
+                'decimals': token_data['decimals']
             })
         
         return result_list
-
-# if __name__ == "__main__":
-#     # Launch the web scraping task
-#     getAddress_detail('0x71C7656EC7ab88b098defB751B7401B5f6d8976F')
 
 
 

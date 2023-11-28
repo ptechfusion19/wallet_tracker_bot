@@ -10,7 +10,7 @@ from aiogram.filters import StateFilter
 from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter , wallet_chain_getter
 from handlers.chain_validator import is_valid_eth_address ,is_valid_shi_address
 from handlers.ca_action import ButtonClass , lang_setter
-from handlers.keyborad import delete_confirmation , wallet_detial_keyboard
+from handlers.keyborad import delete_confirmation , wallet_detial_keyboard,wallet_detial_keyboard2
 from database.db_operations import delete_wallet
 from Messages.langobj import setter_lang
 from handlers.cleaner import cleaning_wallet_detial_eth , cleaning_wallet_detial_shi
@@ -216,41 +216,53 @@ async def handle_wallet_delete(query:types.CallbackQuery,callback_data):
 
 # wallet detail keyboard 
 @router.callback_query(ButtonClass.filter(F.btn_type=="walletDetail"))
-async def handle_wallet_button(query:types.CallbackQuery,callback_data):
+async def handle_wallet_button(query:types.CallbackQuery,callback_data ):
 
     chain_checker = await wallet_chain_getter(callback_data.wallet_id)
     if chain_checker[0] == 0:
         print("bsc")
     elif chain_checker[0] == 1:
-        wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id, callback_data.wallet_no)
+        wallet_detail = await wallet_detial_keyboard( callback_data.wallet_no,callback_data.wallet_id,callback_data.wallet_addres)
         wallet_detial_data = await is_valid_eth_address(callback_data.wallet_addres)
         coin_symbols_holder_count =  await cleaning_wallet_detial_eth(wallet_detial_data)
     elif chain_checker[0] == 2:
-        wallet_detail = await wallet_detial_keyboard(callback_data.wallet_id , callback_data.wallet_no)
+        wallet_detail = await wallet_detial_keyboard(callback_data.wallet_no,callback_data.wallet_id,callback_data.wallet_addres)
         wallet_detial_data = await is_valid_shi_address(callback_data.wallet_addres)
-        print(wallet_detial_data)
+        # print(wallet_detial_data)
         coin_symbols_holder_count = await cleaning_wallet_detial_shi(wallet_detial_data)
         print("shibarium")
-
-    print(coin_symbols_holder_count)
-
     sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
-
-    # Display the top 4 tokens
-    top_tokens = sorted_detail[:4]
-
-    # Construct the formatted message
+    top_tokens = sorted_detail[:5]
     formatted_message = "\n".join(
         f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD"
         for token in top_tokens
     )
-
-    # formatted_message += (
-    #     "\n_________________________________\n"
-    #     "📈 Displaying Top 4 Tokens 📉\n"
-    #     f"💰 Total USD = ${sum(token['holdersCount'] * 117.19 for token in top_tokens):.2f} 💰\n"
-    #     f"💰 Total ETH = 0.00 ETH 💰")
-
-    
     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     await query.message.answer(text=f"{formatted_message}  \n⌚ ---{current_time}--- ⌚ \n ℹ️ The bot only display tokens purchased  in the last 30 days. \n 🔊 Wallet Tracker - Advertise with us @wallet_taktak_bot" , reply_markup=wallet_detail)
+
+
+
+@router.callback_query(ButtonClass.filter(F.btn_type=="wallet_addres"))
+async def handle_wallet_button(query:types.CallbackQuery,callback_data ):
+
+    chain_checker = await wallet_chain_getter(callback_data.wallet_id)
+    if chain_checker[0] == 0:
+        print("bsc")
+    elif chain_checker[0] == 1:
+        wallet_detail = await wallet_detial_keyboard2(callback_data.wallet_no, callback_data.wallet_id, callback_data.wallet_addres)
+        wallet_detial_data = await is_valid_eth_address(callback_data.wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_eth(wallet_detial_data)
+    elif chain_checker[0] == 2:
+        wallet_detail = await wallet_detial_keyboard2(callback_data.wallet_no, callback_data.wallet_id, callback_data.wallet_addres)
+        wallet_detial_data = await is_valid_shi_address(callback_data.wallet_addres)
+        # print(wallet_detial_data)
+        coin_symbols_holder_count = await cleaning_wallet_detial_shi(wallet_detial_data)
+        print("shibarium")
+    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
+    top_tokens = sorted_detail[:5]
+    formatted_message = "\n".join(
+        f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD"
+        for token in top_tokens
+    )
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    await query.message.edit_text(text=f"{formatted_message}  \n⌚ ---{current_time}--- ⌚ \n ℹ️ The bot only display tokens purchased  in the last 30 days. \n 🔊 Wallet Tracker - Advertise with us @wallet_taktak_bot" , reply_markup=wallet_detail)

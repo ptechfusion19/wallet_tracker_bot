@@ -4,7 +4,7 @@ class ButtonClass(CallbackData, prefix="btn"):
     btn_type:str
     wallet_id: int
     wallet_addres: str
-    wallet_no : str
+    wallet_no : int
 
 
 
