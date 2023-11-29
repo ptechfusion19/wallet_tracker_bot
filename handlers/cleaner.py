@@ -2,8 +2,20 @@
 import requests
 async def cleaning_wallet_detial_eth(wallet_detial_data):
 
-    wallet_symbol_and_counthold = []
-    
+    wallet_symbol_and_counthold2 = []
+    url = "https://api.coingecko.com/api/v3/simple/price"
+    params = {
+        "ids": "ethereum",
+        "vs_currencies": "usd"
+    }
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        eth_price = data.get("ethereum", {}).get("usd")
+    else:
+        print(f"Error: Unable to fetch data. Status code: {response.status_code}")
+
     print(wallet_detial_data)
     for item in wallet_detial_data:
         print(item)
@@ -22,20 +34,35 @@ async def cleaning_wallet_detial_eth(wallet_detial_data):
                 
                 if pair_info['labels'][0] == "v2":
                     token_price_in_usd = float(pair_info['priceUsd'])
+                    token_price_in_eth = float(eth_price)
                     
                     
                     total_in_usd = float(token_price_in_usd * amount_in_dec)
+                    total_in_eth = float(total_in_usd / token_price_in_eth)
                     print(total_in_usd)
 
                     if symbol is not None and address is not None:
-                        wallet_symbol_and_counthold.append({'symbol': symbol, 'tot_amount_in_usd': total_in_usd})
+                        wallet_symbol_and_counthold2.append({'symbol': symbol, 'tot_amount_in_usd': total_in_usd , 'total_amount_in_eth':total_in_eth})
 
-    return wallet_symbol_and_counthold
+    return wallet_symbol_and_counthold2
 
 
 
 async def cleaning_wallet_detial_shi(wallet_detial_data):
-    wallet_symbol_and_counthold = []
+    wallet_symbol_and_counthold2 = []
+    url = "https://api.coingecko.com/api/v3/simple/price"
+    params = {
+        "ids": "ethereum",
+        "vs_currencies": "usd"
+    }
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        eth_price = data.get("ethereum", {}).get("usd")
+    else:
+        print(f"Error: Unable to fetch data. Status code: {response.status_code}")
+
     for item in wallet_detial_data:
         address_token = item['address']
         symbol = item['symbol']
@@ -48,8 +75,11 @@ async def cleaning_wallet_detial_shi(wallet_detial_data):
         if pairs_info: 
             for pair_info in pairs_info: 
                 token_price_in_usd = float(pair_info['priceUsd'])
+                price_change = float(pair_info['priceChange'].get('h24'))
+                token_price_in_eth = float(eth_price)
                 total_in_usd = float(token_price_in_usd * display_amount)
+                total_in_eth = float(total_in_usd / token_price_in_eth)
                 if symbol is not None and address_token is not None:
-                    wallet_symbol_and_counthold.append({'symbol': symbol, 'tot_amount_in_usd': total_in_usd})
+                    wallet_symbol_and_counthold2.append({'symbol': symbol, 'tot_amount_in_usd': total_in_usd ,'total_amount_in_eth':total_in_eth, 'price_change':price_change })
 
-    return wallet_symbol_and_counthold
+    return wallet_symbol_and_counthold2

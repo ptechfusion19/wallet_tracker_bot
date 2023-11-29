@@ -3,8 +3,9 @@ from handlers.keyborad  import wallet_keyborad
 from handlers.ca_action import lang_setter
 from Messages.langobj import getter_lang
 from handlers.ca_action import msg_setter
-
-
+from handlers.keyborad import wallet_detial_keyboard, wallet_detial_keyboard2
+from handlers.chain_validator import is_valid_eth_address ,is_valid_shi_address
+from handlers.cleaner import cleaning_wallet_detial_eth , cleaning_wallet_detial_shi
 async def msg_lang_setter():
     language = getter_lang()
     if  language == 'chinese':
@@ -114,3 +115,31 @@ async def address_add(wallet_address, chain):
         return f"""✅ 地址 \n {wallet_address} \n {chain} 已成功添加。"""
     else:
         return f"""✅ Address \n {wallet_address} \n {chain} has been successfully added."""
+
+
+async def detailwallet_message(wallet_no,wallet_id,wallet_addres,chain_id):
+
+
+    if chain_id == 0:
+       print("bsc")
+    elif chain_id == 1:
+        
+        wallet_detial_data = await is_valid_eth_address(wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_eth(wallet_detial_data)
+    elif chain_id == 2:
+        
+        wallet_detial_data = await is_valid_shi_address(wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_shi(wallet_detial_data)
+
+    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
+    top_tokens = sorted_detail[:5]
+    formatted_message = "\n".join(
+        f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH"
+        for token in top_tokens
+    )
+
+    return formatted_message
+
+
+# async def gain_in_wallet():
+    

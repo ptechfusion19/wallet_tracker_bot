@@ -6,6 +6,11 @@ class ButtonClass(CallbackData, prefix="btn"):
     wallet_addres: str
     wallet_no : int
 
+class ButtonClassDetail(CallbackData , prefix="btn"):
+    btn_type:str
+    wallet_id: int
+    wallet_no : int
+    wallet_name :str
 
 
 
