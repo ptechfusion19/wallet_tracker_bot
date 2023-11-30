@@ -1,8 +1,9 @@
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from database.db_operations import checke_wallet_no , get_wallet_id_address
-from handlers.ca_action import ButtonClass , ButtonClassDetail
+from handlers.ca_action import ButtonClass , ButtonClassDetail, chartButton
 from handlers.ca_action import lang_setter
+
 
 async def wallet_keyborad(user_name,user_id):
 
@@ -119,7 +120,7 @@ async def wallet_detial_keyboard(wallet_no,wallet_id):
     Mc = InlineKeyboardButton(text="MC" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Mc").pack())
     Gains = InlineKeyboardButton(text="Gains" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Gains").pack())
     note_book  = InlineKeyboardButton(text="📃" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="show_token").pack())
-    chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
+    chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="charts" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
     pin_wallet  = InlineKeyboardButton(text="📌" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="pin").pack())
     Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
     price_wallet  = InlineKeyboardButton(text="🚨 Price" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Price").pack())
@@ -139,7 +140,7 @@ async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads):
     Mc = InlineKeyboardButton(text="MC" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Mc").pack())
     Gains = InlineKeyboardButton(text="Gains" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Gains").pack())
     note_book  = InlineKeyboardButton(text="📃" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="show_token").pack())
-    chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
+    chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="charts" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
     pin_wallet  = InlineKeyboardButton(text="📌" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="pin").pack())
     Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
     price_wallet  = InlineKeyboardButton(text="🚨 Price" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Price").pack())
@@ -153,7 +154,19 @@ async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads):
     return keyborad
     
 
+async def wallet_detail_chart_keyboard(symbols,wallet_no,wallet_id , valid_addresses):
+    
+    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}" , callback_data=ButtonClassDetail(btn_type="walt_chart", wallet_id=wallet_id , wallet_no=wallet_no , wallet_name="wallet_address").pack())
+    wallet_return_button = InlineKeyboardButton(text="Return" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id , wallet_no=wallet_no, wallet_name="return").pack())
+    symbol_btn_list = []
+    wallet_url = "https://www.dextools.io/app/ether/pair-explorer/"
+    for j,i in enumerate(symbols):
+        
+        symbol_btn_list.append(InlineKeyboardButton(text=f"{i}", url=wallet_url + valid_addresses[j], callback_data=chartButton(btn_type="showinfo",wallet_address=valid_addresses[j]).pack()))
 
-
+    builder = InlineKeyboardBuilder([[wallet_no_button , wallet_return_button ] , symbol_btn_list])
+    builder.adjust(1,1,3,3)
+    keyboard = builder.as_markup()
+    return keyboard
 
 

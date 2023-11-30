@@ -12,7 +12,9 @@ class ButtonClassDetail(CallbackData , prefix="btn"):
     wallet_no : int
     wallet_name :str
 
-
+class chartButton(CallbackData ,prefix = "btn"):
+    btn_type:str
+    wallet_address:str
 
 class lang_setter:
     def __init__(self):

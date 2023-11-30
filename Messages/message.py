@@ -131,15 +131,45 @@ async def detailwallet_message(wallet_no,wallet_id,wallet_addres,chain_id):
         wallet_detial_data = await is_valid_shi_address(wallet_addres)
         coin_symbols_holder_count =  await cleaning_wallet_detial_shi(wallet_detial_data)
 
-    sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
-    top_tokens = sorted_detail[:5]
-    formatted_message = "\n".join(
-        f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH"
-        for token in top_tokens
-    )
+    try:
+        sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
+        top_tokens = sorted_detail[:5]
+        formatted_message = "\n".join(
+            
+            f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH | {token['address']}"
+            for token in top_tokens
+        )
 
-    return formatted_message
+        return formatted_message
+    except TypeError:
+        return "the wallet has no info"
 
 
-# async def gain_in_wallet():
-    
+#for gains 
+async def gain_in_wallet(wallet_addres, chain_id):
+    if chain_id == 0:
+       print("bsc")
+    elif chain_id == 1:
+        
+        wallet_detial_data = await is_valid_eth_address(wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_eth(wallet_detial_data)
+    elif chain_id == 2:
+        
+        wallet_detial_data = await is_valid_shi_address(wallet_addres)
+        coin_symbols_holder_count =  await cleaning_wallet_detial_shi(wallet_detial_data)
+
+    try:
+        sorted_detail = sorted(coin_symbols_holder_count, key=lambda x: x['tot_amount_in_usd'], reverse=True)
+        top_tokens = sorted_detail[:5]
+        formatted_message = "\n".join(
+            f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH | {token['price_change']} % "
+            f"{':🟢:' if token['price_change'] >= 0 else ':🟠:' if -2 <= token['price_change'] < 0 else ':🔴:'}"
+            f"| {token['address']}"
+  
+            for token in top_tokens
+        )
+
+        return formatted_message
+    except TypeError:
+        return "the wallet has no info ABOUT GAINS"
+
