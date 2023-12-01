@@ -3,14 +3,14 @@ from aiogram.types import Message
 from aiogram import Bot, Dispatcher, Router, types
 from Messages.message import  wallet_command_text_fun ,  address_add ,  msg_lang_setter
 from handlers.ca_action import msg_setter
-from handlers.keyborad import wallet_keyborad , adding_Wallet_keyborad , lang_types_btn , wallet_detail_chart_keyboard
+from handlers.keyborad import wallet_keyborad , adding_Wallet_keyborad , lang_types_btn , wallet_detail_chart_keyboard ,wallet_manage_keyboard
 from aiogram.types import CallbackQuery 
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
-from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter , wallet_chain_getter
+from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter , wallet_chain_getter,connected_wallet_list
 from handlers.chain_validator import is_valid_eth_address ,is_valid_shi_address
 from handlers.ca_action import ButtonClass , lang_setter , ButtonClassDetail,chartButton
-from handlers.keyborad import delete_confirmation , wallet_detial_keyboard,wallet_detial_keyboard2
+from handlers.keyborad import delete_confirmation , wallet_detial_keyboard,wallet_detial_keyboard2 ,wallet_detial_keyboard_inline
 from database.db_operations import delete_wallet
 from Messages.langobj import setter_lang
 from handlers.cleaner import cleaning_wallet_detial_eth , cleaning_wallet_detial_shi
@@ -19,6 +19,7 @@ import datetime
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Messages.message import detailwallet_message , gain_in_wallet
 from aiogram import F
+from tabulate import tabulate
 router = Router()
 
 
@@ -243,14 +244,14 @@ async def handle_wallet_button(query:types.CallbackQuery,callback_data,state:FSM
 {formatted_message_without_address}``` ⌚ {current_time}⌚ 
 ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
 🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=wallet_detail, parse_mode="MARKDOWNV2")
-    await state.set_data({'formated_Data':formatted_message})
+    await state.set_data({'formated_Data':formatted_message,'without_address': formatted_message_without_address})
 
 
 
 @router.callback_query(ButtonClassDetail.filter(F.btn_type=="walt_ads"))
 async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:FSMContext):
     
-
+    formatted_text_all = await state.get_data()
     chain_checker = await wallet_chain_getter(callback_data.wallet_id)
     wallet_addres = await wallet_address_getter(callback_data.wallet_id)
     wallet_detail = await wallet_detial_keyboard( callback_data.wallet_no,callback_data.wallet_id)
@@ -266,18 +267,41 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
     elif callback_data.wallet_name == "shw_mis_hid_tok":
         print("shw_mis_hid_tok")
     elif callback_data.wallet_name == "Refresh":
+        print("new data")
         print("Refresh")
     elif callback_data.wallet_name == "Mc":
         print("Mc")
     elif callback_data.wallet_name == "Gains":
-        formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
-        lines = formatted_message.split('\n')
-        formatted_message_without_address = "\n".join(
-        line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
-        for line in lines
-        )
-        print("Gains")
+        try:
+            formatted_text_all = formatted_text_all['without_address']
+            last_part = [line.split('|')[-1].strip() for line in formatted_text_all.split('\n') if line.strip()]
+            if "%"  in last_part[0]:
+                lines = formatted_message.split('\n')
+                formatted_message_without_address = "\n".join(
+                line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+                for line in lines
+                )
+                print("remove gains ")
+            else:
+                formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
+                lines = formatted_message.split('\n')
+                formatted_message_without_address = "\n".join(
+                line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+                for line in lines
+                )
+                print("Gains")
+        except KeyError:
+            formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
+            lines = formatted_message.split('\n')
+            formatted_message_without_address = "\n".join(
+            line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+            for line in lines
+            )
+            print("Gains")
+            
     elif callback_data.wallet_name == "show_token":
+        current_wallet_ads = await wallet_address_getter(callback_data.wallet_id)
+        await query.message.answer(text=current_wallet_ads[0])
         print("show_token")
     elif callback_data.wallet_name == "pin":
         print("pin")
@@ -294,7 +318,7 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
 {formatted_message_without_address}``` ⌚ {current_time}⌚ 
 ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
 🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=wallet_detail, parse_mode="MARKDOWNV2")
-    await state.set_data({'formated_Data':formatted_message})
+    await state.set_data({'formated_Data':formatted_message, 'without_address': formatted_message_without_address} )
 
     
 
@@ -321,17 +345,78 @@ async def charts(query:types.CallbackQuery,callback_data, state:FSMContext):
 ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
 🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=get_buttons, parse_mode="MARKDOWNV2")
     # await state.set_data({'formated_Data':formatted_message})
+
+@router.callback_query(ButtonClassDetail.filter(F.btn_type  == "Manage_walt"))
+async def Manage_walt(query:types.CallbackQuery,callback_data, state:FSMContext):
+    get_formatted_text =await state.get_data()
+    get_formatted_text = get_formatted_text['without_address']
+    get_buttons = await wallet_manage_keyboard(callback_data.wallet_no , callback_data.wallet_id)
+
+    current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
+    await query.message.edit_text(text=f'''
+    ```Copy
+    {get_formatted_text}``` ⌚ {current_time}⌚ 
+    ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
+    🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=get_buttons, parse_mode="MARKDOWNV2")
+
+
     
+
+@router.callback_query(ButtonClass.filter(F.btn_type =="confirm_delete"))
+async def confirm_delete(query:types.CallbackQuery , callback_data):
+    wallet_address = await wallet_address_getter(callback_data.wallet_id)
+    await delete_wallet(callback_data.wallet_id)
     
+    await query.message.answer(text=f"✅ Deleted wallet address \n {wallet_address}")
+    walllet_command_text = await wallet_command_text_fun(query.from_user.id)
+    wallet_keyboard_button = await wallet_keyborad(query.from_user.username , query.from_user.id)
+    await query.message.answer(text=walllet_command_text ,reply_markup=wallet_keyboard_button)
 
+@router.callback_query(lambda callback_query:callback_query.data == "List_wallet")
+async def List_wallet(callback_query:types.CallbackQuery):
+    wallet_addresses = await connected_wallet_list(callback_query.from_user.id)
+    formatted_wallets = []
 
-# @router.callback_query(chartButton.filter(F.btn_type == "showinfo"))
-# async def showinfo(query:types.CallbackQuery,callback_data):
-#     wallet_addres = callback_data.wallet_address
-#     wallet_url = "https://www.dextools.io/app/ether/pair-explorer/"
-#     keyboard = InlineKeyboardMarkup().add(
-#         InlineKeyboardButton("Open URL", url=f"{wallet_url}{wallet_addres}")
-#     )
-#     await query.answer(f"Open this link? \n {wallet_addres} \n {wallet_url}" , show_alert=True , reply_markup=keyboard)
+    for index, wallet_address_tuple in enumerate(wallet_addresses, 1):
+       
+        wallet_address = wallet_address_tuple[0]
 
+       
+        formatted_wallet = f"Wallet {index}: {wallet_address}"
+        formatted_wallets.append(formatted_wallet)
+
+    formatted_message = "\n".join(formatted_wallets)
+    await callback_query.message.answer(text=f"Connected Wallet: \n {formatted_message}" )
+
+@router.callback_query(ButtonClassDetail.filter(F.btn_type == "walt_inline"))
+async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMContext):
+    formatted_text = await state.get_data()
+    formatted_text = formatted_text['without_address']
+    getting_button_text = query.data.replace('get_text_','')
+    print(getting_button_text)
+    last_part = getting_button_text.split(':')[-1]
+    print(last_part)
+    if last_part == "Inline":
+        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id,'Table')
+        rows = [line.split('|') for line in formatted_text.strip().split('\n')]
+
+        # Extract headers and rows for tabulate
+        headers = ["Symbol", "USD", "ETH"]
+        data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
+
+        # Convert data to table format
+        formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+    else:
+
+        formatted_text = formatted_text
+
+        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Inline')
+
+    
+    current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
+    await query.message.edit_text(text=f'''
+    ```Copy
+    {formatted_text}``` ⌚ {current_time}⌚ 
+    ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
+    🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=keyboard, parse_mode="MARKDOWNV2")
 

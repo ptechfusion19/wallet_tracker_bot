@@ -122,9 +122,29 @@ async def wallet_detial_keyboard(wallet_no,wallet_id):
     note_book  = InlineKeyboardButton(text="📃" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="show_token").pack())
     chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="charts" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
     pin_wallet  = InlineKeyboardButton(text="📌" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="pin").pack())
-    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
+    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="Manage_walt" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
     price_wallet  = InlineKeyboardButton(text="🚨 Price" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Price").pack())
-    inline_wallet = InlineKeyboardButton(text="Inline" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Inline").pack())
+    inline_wallet = InlineKeyboardButton(text="Inline" ,callback_data=ButtonClassDetail(btn_type="walt_inline" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Inline").pack())
+
+    builder3 = InlineKeyboardBuilder([[wallet_no_button , show_token,refresh,Mc , Gains , note_book,chart_wallet,pin_wallet,Manage_wallet,price_wallet,inline_wallet]])
+    builder3.adjust(1,1,3,3,3)
+    keyborad = builder3.as_markup()
+
+    return keyborad
+
+async def wallet_detial_keyboard_inline(wallet_no,wallet_id,text):
+    
+    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}",callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="wallet_address").pack())
+    show_token = InlineKeyboardButton(text="Show Missing and Hide Existing Tokens" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no,wallet_name="shw_mis_hid_tok").pack())
+    refresh = InlineKeyboardButton(text="Refresh", callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Refresh").pack())
+    Mc = InlineKeyboardButton(text="MC" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Mc").pack())
+    Gains = InlineKeyboardButton(text="Gains" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Gains").pack())
+    note_book  = InlineKeyboardButton(text="📃" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="show_token").pack())
+    chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="charts" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
+    pin_wallet  = InlineKeyboardButton(text="📌" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="pin").pack())
+    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="Manage_walt" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
+    price_wallet  = InlineKeyboardButton(text="🚨 Price" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Price").pack())
+    inline_wallet = InlineKeyboardButton(text=text ,callback_data=ButtonClassDetail(btn_type="walt_inline" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name=text).pack())
 
     builder3 = InlineKeyboardBuilder([[wallet_no_button , show_token,refresh,Mc , Gains , note_book,chart_wallet,pin_wallet,Manage_wallet,price_wallet,inline_wallet]])
     builder3.adjust(1,1,3,3,3)
@@ -142,9 +162,9 @@ async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads):
     note_book  = InlineKeyboardButton(text="📃" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="show_token").pack())
     chart_wallet  = InlineKeyboardButton(text="📈" ,callback_data=ButtonClassDetail(btn_type="charts" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="chart").pack())
     pin_wallet  = InlineKeyboardButton(text="📌" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="pin").pack())
-    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
+    Manage_wallet  = InlineKeyboardButton(text="Manage" , callback_data=ButtonClassDetail(btn_type="Manage_walt" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Manage").pack())
     price_wallet  = InlineKeyboardButton(text="🚨 Price" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Price").pack())
-    inline_wallet = InlineKeyboardButton(text="Inline" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Inline").pack())
+    inline_wallet = InlineKeyboardButton(text="Inline" ,callback_data=ButtonClassDetail(btn_type="walt_inline" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Inline").pack())
 
     builder3 = InlineKeyboardBuilder([[wallet_no_button , show_token,refresh,Mc , Gains , note_book,chart_wallet,pin_wallet,Manage_wallet,price_wallet,inline_wallet]])
     builder3.adjust(1,1,3,3,3)
@@ -170,3 +190,15 @@ async def wallet_detail_chart_keyboard(symbols,wallet_no,wallet_id , valid_addre
     return keyboard
 
 
+async def wallet_manage_keyboard(wallet_no ,wallet_id):
+    wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}" , callback_data=ButtonClassDetail(btn_type="walt_manage", wallet_id=wallet_id , wallet_no=wallet_no , wallet_name="walt_manage").pack())
+    wallet_return = InlineKeyboardButton(text="Return" , callback_data=ButtonClassDetail(btn_type="walt_ads", wallet_id=wallet_id , wallet_no=wallet_no , wallet_name="walt_manage").pack())
+    wallet_add = InlineKeyboardButton(text="Add" , callback_data="add_Wallet")
+    wallet_list = InlineKeyboardButton(text="List" , callback_data="List_wallet")
+    wallet_remove = InlineKeyboardButton(text="Remove" , callback_data=ButtonClass(btn_type="confirm_delete" , wallet_id=wallet_id , wallet_addres="NA" , wallet_no=wallet_no).pack())
+
+    builder = InlineKeyboardBuilder([[wallet_no_button , wallet_return , wallet_add , wallet_list , wallet_remove]])
+    builder.adjust(1,3,2)
+
+    keyboard = builder.as_markup()
+    return keyboard

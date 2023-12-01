@@ -86,6 +86,13 @@ async def checke_wallet_no(user_id):
     else:
         return no_of_wallets
 
+async def connected_wallet_list(user_id):
+    wallet_addresses = (
+    session.query(Wallet.wallet_address)
+    .filter(Wallet.user_id == user_id)
+    .all()
+)
+    return wallet_addresses
 
     
 
