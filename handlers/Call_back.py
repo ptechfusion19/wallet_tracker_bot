@@ -236,7 +236,7 @@ async def handle_wallet_button(query:types.CallbackQuery,callback_data,state:FSM
     current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
     lines = formatted_message.split('\n')
     formatted_message_without_address = "\n".join(
-    line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
     for line in lines
         )
     await query.message.answer(text=f'''
@@ -245,6 +245,7 @@ async def handle_wallet_button(query:types.CallbackQuery,callback_data,state:FSM
 ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
 🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=wallet_detail, parse_mode="MARKDOWNV2")
     await state.set_data({'formated_Data':formatted_message,'without_address': formatted_message_without_address})
+    
 
 
 
@@ -258,9 +259,19 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
     formatted_message = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0])
     lines = formatted_message.split('\n')
     formatted_message_without_address = "\n".join(
-    line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
     for line in lines
         )
+    try:
+        gain_data = await state.get_data()
+        gain_data = gain_data['gain_in_wallet']
+    except KeyError:
+        gain_data = "No"
+    try:
+        market_cap = await state.get_data()
+        market_cap = market_cap['market_cap']
+    except KeyError:
+        market_cap = "No"
     if callback_data.wallet_name == "wallet_address":
         wallet_detail = await wallet_detial_keyboard2( callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0])
         formatted_message = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0])
@@ -270,31 +281,56 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
         print("new data")
         print("Refresh")
     elif callback_data.wallet_name == "Mc":
+        if market_cap == "No":
+            lines = formatted_message.split('\n')
+            formatted_message_without_address = "\n".join(
+                    line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+                    for line in lines
+                    )
+            market_cap = "yes"
+        else:
+            lines = formatted_message.split('\n')
+            formatted_message_without_address = "\n".join(
+                    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
+                    for line in lines
+                    )
+            market_cap = "No"
+            
         print("Mc")
     elif callback_data.wallet_name == "Gains":
         try:
-            formatted_text_all = formatted_text_all['without_address']
-            last_part = [line.split('|')[-1].strip() for line in formatted_text_all.split('\n') if line.strip()]
-            if "%"  in last_part[0]:
+            if gain_data == "yes":
                 lines = formatted_message.split('\n')
                 formatted_message_without_address = "\n".join(
-                line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+                line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
                 for line in lines
                 )
+                gain_data = "No"
                 print("remove gains ")
             else:
-                formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
-                lines = formatted_message.split('\n')
-                formatted_message_without_address = "\n".join(
-                line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
-                for line in lines
-                )
-                print("Gains")
+                if market_cap == "No":
+                    formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
+                    lines = formatted_message.split('\n')
+                    formatted_message_without_address = "\n".join(
+                    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
+                    for line in lines
+                    )
+                    print("Gains")
+                    gain_data = "yes"
+                else:
+                    formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
+                    lines = formatted_message.split('\n')
+                    formatted_message_without_address = "\n".join(
+                    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
+                    for line in lines
+                    )
+                    print("Gains")
+                    gain_data = "yes"
         except KeyError:
             formatted_message = await gain_in_wallet(wallet_addres[0],chain_checker[0])
             lines = formatted_message.split('\n')
             formatted_message_without_address = "\n".join(
-            line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+            line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
             for line in lines
             )
             print("Gains")
@@ -318,7 +354,7 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
 {formatted_message_without_address}``` ⌚ {current_time}⌚ 
 ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
 🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=wallet_detail, parse_mode="MARKDOWNV2")
-    await state.set_data({'formated_Data':formatted_message, 'without_address': formatted_message_without_address} )
+    await state.set_data({'formated_Data':formatted_message, 'without_address': formatted_message_without_address , 'gain_in_wallet':gain_data, 'market_cap':market_cap})
 
     
 
@@ -335,7 +371,7 @@ async def charts(query:types.CallbackQuery,callback_data, state:FSMContext):
     get_buttons = await wallet_detail_chart_keyboard(symbols , callback_data.wallet_no , callback_data.wallet_id,valid_addresses)
     lines = formatted_message.split('\n')
     formatted_message_without_address = "\n".join(
-    line.rsplit('|', 1)[0] if '| ' in line else line  # Remove the last part including token['address']
+    line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
     for line in lines
         )
     current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
@@ -396,27 +432,62 @@ async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMConte
     print(getting_button_text)
     last_part = getting_button_text.split(':')[-1]
     print(last_part)
-    if last_part == "Inline":
-        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id,'Table')
+    last_part2 = [line.split('|')[-1].strip() for line in formatted_text.split('\n') if line.strip()]
+    print(last_part2)
+
+    try:
+        market_cap = await state.get_data()
+        market_cap = market_cap['market_cap']
+    except KeyError:
+        print("no market_Cap found ")
+    if market_cap == "yes":
+        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Table')
         rows = [line.split('|') for line in formatted_text.strip().split('\n')]
-
-        # Extract headers and rows for tabulate
-        headers = ["Symbol", "USD", "ETH"]
+        headers = ["Symbol", "USD", "ETH" , "Market_Cap"]
         data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
-
-        # Convert data to table format
         formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+
+    elif "%"  in last_part2[0]:
+        if last_part == "Inline":
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id,'Table')
+            rows = [line.split('|') for line in formatted_text.strip().split('\n')]
+
+            # Extract headers and rows for tabulate
+            headers = ["Symbol", "USD", "ETH" , "CHANGE"]
+            data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
+
+            # Convert data to table format
+            formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+            gain_in_wallet = "yes"
+        else:
+
+            formatted_text = formatted_text
+
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Inline')
+            gain_in_wallet = "yes"
     else:
+        if last_part == "Inline":
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id,'Table')
+            rows = [line.split('|') for line in formatted_text.strip().split('\n')]
 
-        formatted_text = formatted_text
+            # Extract headers and rows for tabulate
+            headers = ["Symbol", "USD", "ETH" ]
+            data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
 
-        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Inline')
+            # Convert data to table format
+            formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+            gain_in_wallet = "No"
+        else:
 
+            formatted_text = formatted_text
+
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Inline')
+            gain_in_wallet = "No"
     
     current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
     await query.message.edit_text(text=f'''
     ```Copy
-    {formatted_text}``` ⌚ {current_time}⌚ 
+{formatted_text}``` ⌚ {current_time}⌚ 
     ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
     🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=keyboard, parse_mode="MARKDOWNV2")
-
+    state.set_data({'without_address':formatted_text, 'gain_in_wallet':gain_in_wallet ,'market_cap':market_cap})

@@ -136,7 +136,7 @@ async def detailwallet_message(wallet_no,wallet_id,wallet_addres,chain_id):
         top_tokens = sorted_detail[:5]
         formatted_message = "\n".join(
             
-            f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH | {token['address']}"
+            f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH | {token['market_cap']} MC | {token['address']}"
             for token in top_tokens
         )
 
@@ -164,7 +164,9 @@ async def gain_in_wallet(wallet_addres, chain_id):
         formatted_message = "\n".join(
             f"{token['symbol']}:  | {token['tot_amount_in_usd']}$ USD | {token['total_amount_in_eth']} ETH | {token['price_change']} % "
             f"{':🟢:' if token['price_change'] >= 0 else ':🟠:' if -2 <= token['price_change'] < 0 else ':🔴:'}"
+            f"| {token['market_cap']}"
             f"| {token['address']}"
+            
   
             for token in top_tokens
         )
