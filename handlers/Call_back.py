@@ -10,7 +10,7 @@ from aiogram.filters import StateFilter
 from database.db_operations import insert_user , check_user,insert_wallet , checke_wallet_no , insert_chain,check_chain, delete_chain, delete_wallet , wallet_address_getter , wallet_chain_getter,connected_wallet_list
 from handlers.chain_validator import is_valid_eth_address ,is_valid_shi_address
 from handlers.ca_action import ButtonClass , lang_setter , ButtonClassDetail,chartButton
-from handlers.keyborad import delete_confirmation , wallet_detial_keyboard,wallet_detial_keyboard2 ,wallet_detial_keyboard_inline
+from handlers.keyborad import delete_confirmation , wallet_detial_keyboard,wallet_detial_keyboard2 ,wallet_detial_keyboard_inline , show_miss_and_hide_token
 from database.db_operations import delete_wallet
 from Messages.langobj import setter_lang
 from handlers.cleaner import cleaning_wallet_detial_eth , cleaning_wallet_detial_shi
@@ -276,6 +276,11 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
         wallet_detail = await wallet_detial_keyboard2( callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0])
         formatted_message = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0])
     elif callback_data.wallet_name == "shw_mis_hid_tok":
+        addresses = [line.split('|')[-1].strip() for line in formatted_message.split('\n')]
+        valid_addresses = [address for address in addresses if address]
+        symbols = [token.split(':')[0] for token in formatted_message.split('\n')]
+        get_buttons = await show_miss_and_hide_token(callback_data.wallet_no , callback_data.wallet_id,valid_addresses ,symbols )
+        wallet_detail = get_buttons
         print("shw_mis_hid_tok")
     elif callback_data.wallet_name == "Refresh":
         print("new data")
@@ -341,10 +346,6 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
         print("show_token")
     elif callback_data.wallet_name == "pin":
         print("pin")
-    elif callback_data.wallet_name == "Manage":
-        print("Manage")
-    elif callback_data.wallet_name == "Price":
-        print("Price")
     elif callback_data.wallet_name == "Inline":
         print("Inline")
         
