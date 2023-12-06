@@ -563,3 +563,11 @@ async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMConte
     ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
     🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=keyboard, parse_mode="MARKDOWNV2")
     await state.set_data({'formated_Data':format_all_text,'without_address':formatted_text, 'gain_in_wallet':gain_in_wallet ,'market_cap':market_cap,'table_text':formatted_text_table,'tot_display':tot_display})
+
+@router.callback_query(ButtonClassDetail.filter(F.btn_type == "walt_mis_hide"))
+async def walt_mis_hide(query:types.CallbackQuery , callback_data ,state:FSMContext):
+
+    force_reply_eth = types.ForceReply(input_field_placeholder="0x420F69...")
+    await query.message.answer( text="Provide the address of the missing token" , reply_markup=force_reply_eth)
+    await state.set_state("add_token_to_db")
+    
