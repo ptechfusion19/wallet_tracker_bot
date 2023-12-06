@@ -273,7 +273,10 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
     except KeyError:
         market_cap = "No"
     if callback_data.wallet_name == "wallet_address":
-        wallet_detail = await wallet_detial_keyboard2( callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0])
+        wallet_detail = await wallet_detial_keyboard2( callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],"wallet_address_added")
+        formatted_message = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0])
+    elif callback_data.wallet_name == "wallet_address_added":
+        wallet_detail = await wallet_detial_keyboard2( callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],"wallet_address")
         formatted_message = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0])
     elif callback_data.wallet_name == "shw_mis_hid_tok":
         addresses = [line.split('|')[-1].strip() for line in formatted_message.split('\n')]
@@ -427,26 +430,41 @@ async def List_wallet(callback_query:types.CallbackQuery):
 
 @router.callback_query(ButtonClassDetail.filter(F.btn_type == "walt_inline"))
 async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMContext):
-    formatted_text = await state.get_data()
-    formatted_text = formatted_text['without_address']
+    formatted_text_all = await state.get_data()
+    formatted_text = formatted_text_all['without_address']
     getting_button_text = query.data.replace('get_text_','')
     print(getting_button_text)
     last_part = getting_button_text.split(':')[-1]
     print(last_part)
     last_part2 = [line.split('|')[-1].strip() for line in formatted_text.split('\n') if line.strip()]
     print(last_part2)
-
+    gain_in_wallet = ""
+    market_cap = ""
     try:
-        market_cap = await state.get_data()
-        market_cap = market_cap['market_cap']
+        market_cap = formatted_text_all['market_cap']
     except KeyError:
         print("no market_Cap found ")
+    try:
+        gain_in_wallet = formatted_text_all['gain_in_wallet']
+    except KeyError:
+        print("no gain found")
+
+    
     if market_cap == "yes":
-        keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Table')
-        rows = [line.split('|') for line in formatted_text.strip().split('\n')]
-        headers = ["Symbol", "USD", "ETH" , "Market_Cap"]
-        data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
-        formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+        if last_part == "Inline":
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Table')
+            rows = [line.split('|') for line in formatted_text.strip().split('\n')]
+            headers = ["Symbol", "USD", "ETH" , "Market_Cap"]
+            data = [{headers[i]: row[i].strip() for i in range(len(headers))} for row in rows]
+            formatted_text = tabulate(data, headers="keys", tablefmt="fancy_grid")
+            market_cap = "yes"
+
+        else:
+            formatted_text = formatted_text
+            keyboard = await wallet_detial_keyboard_inline(callback_data.wallet_no , callback_data.wallet_id, 'Inline')
+            market_cap = "yes"
+
+
 
     elif "%"  in last_part2[0]:
         if last_part == "Inline":

@@ -150,9 +150,12 @@ async def wallet_detial_keyboard_inline(wallet_no,wallet_id,text):
 
     return keyborad
 
-async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads):
-    
-    wallet_no_button = InlineKeyboardButton(text=f"{wallet_ads}",callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="wallet_address").pack())
+async def wallet_detial_keyboard2(wallet_no,wallet_id,wallet_ads,wallet_ads_adder):
+    if wallet_ads_adder == "wallet_address":
+        wallet_no_button = InlineKeyboardButton(text=f"{wallet_ads}",callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name=wallet_ads_adder).pack())
+    else:
+        wallet_no_button = InlineKeyboardButton(text=f"Wallet {wallet_no}",callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name=wallet_ads_adder).pack())
+
     show_token = InlineKeyboardButton(text="Show Missing and Hide Existing Tokens" , callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no,wallet_name="shw_mis_hid_tok").pack())
     refresh = InlineKeyboardButton(text="Refresh", callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Refresh").pack())
     Mc = InlineKeyboardButton(text="MC" ,callback_data=ButtonClassDetail(btn_type="walt_ads" , wallet_id=wallet_id,wallet_no=wallet_no , wallet_name="Mc").pack())

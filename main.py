@@ -7,11 +7,6 @@ from handlers.Call_back import router
 
 from aiogram.utils.markdown import hbold
 
-
-
-
-
-
 async def main() -> None:
     dp.include_router(router)
     await dp.start_polling(bot)
