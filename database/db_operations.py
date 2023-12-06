@@ -20,7 +20,6 @@ async def insert_user( chat_id, user_name):
 
 async def check_user(  user_id):
     old_user =  session.query(User).filter_by(chat_id=user_id).first()
-    print(old_user)
     if old_user:
         return True 
     else:
@@ -74,7 +73,6 @@ async def wallet_address_getter(wallet_id):
 
 async def wallet_chain_getter(wallet_id):
     get_wallet_chain = session.query(Wallet.chain_id).filter(Wallet.id == wallet_id).first()
-    print(get_wallet_chain)
     return get_wallet_chain
 
 async def checke_wallet_no(user_id):

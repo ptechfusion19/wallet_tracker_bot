@@ -15,8 +15,6 @@ async def wallet_keyborad(user_name,user_id):
     button2 = InlineKeyboardButton(text="Add Wallet" , callback_data="add_Wallet")
     # button3 = InlineKeyboardButton(text="Language" , callback_data="Language_setting")
     wallet_ids , wallet_ads = await get_wallet_id_address(user_id)
-    print(wallet_ads)
-    print(wallet_ids)
     if no_of_Wallets > 0:
         btn_list = []
         for i in range(no_of_Wallets):
@@ -83,8 +81,6 @@ async def delete_confirmation(user_name,user_id,wallet_id):
     button2 = InlineKeyboardButton(text="Add Wallet" , callback_data="add_Wallet")
     # button3 = InlineKeyboardButton(text="Language" , callback_data="Language_setting")
     wallet_ids , wallet_ads = await get_wallet_id_address(user_id)
-    print(wallet_ads)
-    print(wallet_ids)
     if no_of_Wallets > 0:
         btn_list = []
         for i in range(no_of_Wallets):

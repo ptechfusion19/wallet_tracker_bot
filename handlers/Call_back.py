@@ -298,9 +298,9 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
         symbols = [token.split(':')[0] for token in formatted_message.split('\n')]
         get_buttons = await show_miss_and_hide_token(callback_data.wallet_no , callback_data.wallet_id,valid_addresses ,symbols )
         wallet_detail = get_buttons
-        print("shw_mis_hid_tok")
+        # print("shw_mis_hid_tok")
     elif callback_data.wallet_name == "Refresh":
-        print("new data")
+        # print("new data")
         print("Refresh")
     elif callback_data.wallet_name == "Mc":
         if market_cap == "No":
@@ -319,7 +319,7 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
                     )
             market_cap = "No"   
             
-        print("Mc")
+        # print("Mc")
     elif callback_data.wallet_name == "Gains":
         try:
             if gain_data == "yes":
@@ -330,7 +330,7 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
                 for line in lines
                 )
                 gain_data = "No"
-                print("remove gains ")
+                # print("remove gains ")
             else:
                 formatted_message , tot_display = await gain_in_wallet(wallet_addres[0],chain_checker[0],pin)
                 lines = formatted_message.split('\n')
@@ -338,7 +338,7 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
                 line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
                 for line in lines
                 )
-                print("Gains")
+                # print("Gains")
                 gain_data = "yes"
                 market_cap = "No"
         except KeyError:
@@ -348,19 +348,17 @@ async def handle_wallet_button2(query:types.CallbackQuery,callback_data , state:
             line.rsplit('|', 2)[0] if '| ' in line else line  # Remove the last part including token['address']
             for line in lines
             )
-            print("Gains")
+            # print("Gains")
             
     elif callback_data.wallet_name == "show_token":
         current_wallet_ads = await wallet_address_getter(callback_data.wallet_id)
         await query.message.answer(text=current_wallet_ads[0])
-        print("show_token")
+        # print("show_token")
     elif callback_data.wallet_name == "pin":
         wallet_detail = await wallet_detial_keyboard( callback_data.wallet_no,callback_data.wallet_id,pin)
         formatted_message , tot_display = await detailwallet_message(callback_data.wallet_no,callback_data.wallet_id,wallet_addres[0],chain_checker[0],pin)
         pin += 5
-        print("pin")
-    elif callback_data.wallet_name == "Inline":
-        print("Inline")
+        # print("pin")
         
     current_time = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
     await query.message.edit_text(text=f'''
@@ -380,7 +378,7 @@ async def charts(query:types.CallbackQuery,callback_data, state:FSMContext):
     formatted_message_all = await state.get_data()
     formatted_message = formatted_message_all['formated_Data']
     tot_display = formatted_message_all['tot_display']
-    print(formatted_message)
+    # print(formatted_message)
     addresses = [line.split('|')[-1].strip() for line in formatted_message.split('\n')]
     valid_addresses = [address for address in addresses if address]
     symbols = [token.split(':')[0] for token in formatted_message.split('\n')]
@@ -481,11 +479,11 @@ async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMConte
     except KeyError:
         formatted_text_table = ""
     getting_button_text = query.data.replace('get_text_','')
-    print(getting_button_text)
+    # print(getting_button_text)
     last_part = getting_button_text.split(':')[-1]
-    print(last_part)
+    # print(last_part)
     last_part2 = [line.split('|')[-1].strip() for line in formatted_text.split('\n') if line.strip()]
-    print(last_part2)
+    # print(last_part2)
     gain_in_wallet = ""
     market_cap = ""
     try:

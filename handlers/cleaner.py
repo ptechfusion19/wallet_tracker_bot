@@ -17,7 +17,6 @@ async def cleaning_wallet_detial_eth(wallet_detial_data):
     else:
         print(f"Error: Unable to fetch data. Status code: {response.status_code}")
 
-    print(wallet_detial_data)
     url = f'https://api.dexscreener.com/latest/dex/tokens/{wallet_detial_data[0].get("tokenInfo").get("address")}'
     symbol = []
     address = []
@@ -25,7 +24,6 @@ async def cleaning_wallet_detial_eth(wallet_detial_data):
     amount_in_dec =  []
     j = 0
     for item in wallet_detial_data:
-        print(item)
         token_info = item.get('tokenInfo', {})
         token_tot_balance = float(item.get('balance'))
         symbol.append(token_info.get('symbol'))    
@@ -38,14 +36,11 @@ async def cleaning_wallet_detial_eth(wallet_detial_data):
             
     
     i = 0
-    print(url)
     response_from_token_add = requests.get(url)
-    response_from_token_add = response_from_token_add.json()
-    print(response_from_token_add)    
+    response_from_token_add = response_from_token_add.json()   
     pairs = response_from_token_add['pairs']
     for pair_info in pairs:
         if pair_info:
-            print(pair_info)
             try:
                 
                 address_checker = pair_info['baseToken'].get('address') 
@@ -65,7 +60,6 @@ async def cleaning_wallet_detial_eth(wallet_detial_data):
         
                     total_in_usd = float(token_price_in_usd * amount_in_dec[index])
                     total_in_eth = float(total_in_usd / token_price_in_eth)
-                    print(total_in_usd)
 
                     if symbol[index] is not None and address[index] is not None:
                         total_in_usd = round(total_in_usd,2)
@@ -108,7 +102,6 @@ async def cleaning_wallet_detial_shi(wallet_detial_data):
         eth_price = data.get("ethereum", {}).get("usd")
     else:
         print(f"Error: Unable to fetch data. Status code: {response.status_code}")
-    print(wallet_detial_data[0])
     url = f'https://api.dexscreener.com/latest/dex/tokens/{wallet_detial_data[0].get("address")}'
     symbol = []
     address = []
