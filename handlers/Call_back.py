@@ -93,17 +93,17 @@ async def bsc_wallet_address(message:Message , state:FSMContext)-> None:
             await message.answer(text=await address_add(wallet_addres ,"bsc"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
             await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
         await message.reply(text="Invalid address provided!")
         await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-        state.clear()
+        await state.clear()
 
 
     
@@ -128,17 +128,17 @@ async def eth_wallet_address(message:Message , state:FSMContext)-> None:
             await message.answer(text=await address_add(wallet_addres , "eth"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
             await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
         await message.reply(text="Invalid address provided!")
         await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-        state.clear()
+        await state.clear()
 
 
 
@@ -165,17 +165,17 @@ async def shi_wallet_address(message:Message , state:FSMContext)-> None:
             await message.answer(text=await address_add(wallet_addres , "shi"))
             walllet_command_text = await wallet_command_text_fun(message.from_user.id)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
         else:
             wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
             await message.answer(text=msg_setter.wallet_limit_text)
             await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-            state.clear()
+            await state.clear()
     else:
         wallet_keyboard_button = await wallet_keyborad(message.from_user.username , message.from_user.id)
         await message.reply(text="Invalid address provided!")
         await message.answer(text=walllet_command_text , reply_markup=wallet_keyboard_button)
-        state.clear()
+        await state.clear()
 
 
 @router.callback_query(lambda callback_query:callback_query.data == "Language_setting")
@@ -472,6 +472,7 @@ async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMConte
     except KeyError:
         pin = 5
     formatted_text_all = await state.get_data()
+    format_all_text = formatted_text_all['formated_Data']
     formatted_text = formatted_text_all['without_address']
     tot_display = formatted_text_all['tot_display']
     try:
@@ -561,4 +562,4 @@ async def walt_inline(query:types.CallbackQuery , callback_data , state:FSMConte
 {tot_display}``` ⌚ {current_time}⌚ 
     ℹ️ *The bot only display tokens purchased  in the last 30 days\\.*  
     🔊 Wallet Tracker  Advertise with us @wallet_taktak_bot''' , reply_markup=keyboard, parse_mode="MARKDOWNV2")
-    await state.set_data({'without_address':formatted_text, 'gain_in_wallet':gain_in_wallet ,'market_cap':market_cap,'table_text':formatted_text_table,'tot_display':tot_display})
+    await state.set_data({'formated_Data':format_all_text,'without_address':formatted_text, 'gain_in_wallet':gain_in_wallet ,'market_cap':market_cap,'table_text':formatted_text_table,'tot_display':tot_display})
